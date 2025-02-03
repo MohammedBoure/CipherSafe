@@ -1,12 +1,12 @@
 import os
-from HandlingFiles import load_file_decrypted, load_key, data_preparation_tuple, get_model_from_list,generate_key,save_data_with_encrypted
+from CHfiles.HandlingFiles import load_file_decrypted, load_key, data_preparation_tuple, get_model_from_list,generate_key,save_data_with_encrypted
 
 class AccountManager:
     """
     Class responsible for managing account-related operations such as
     displaying accounts, showing help options, and processing user instructions.
     """
-    def __init__(self, key: str, filename: str = "myfile"):
+    def __init__(self, key: str, filename: str = "myfile.txt"):
         """
         Initialize the AccountManager with the encryption key and filename.
         
@@ -118,13 +118,11 @@ def load_or_create_key(key_file: str = "secret.key") -> str:
     return load_key()
 
 def main():
-    from time import sleep
     """
     Main entry point of the application.
     Initializes the AccountManager and processes user instructions in a loop.
     """
     key = load_or_create_key()
-    sleep(1)
     account_manager = AccountManager(key)
 
     while True:

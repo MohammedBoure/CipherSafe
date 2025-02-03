@@ -2,13 +2,13 @@ from cryptography.fernet import Fernet
 
 def generate_key(key=None):
     if not key:
-        key = Fernet.generate_key()
+        key = str(Fernet.generate_key())
     with open("secret.key", "w") as key_file:
         key_file.write(key)
     print("the key in secret.key")
 
 def load_key():
-    with open("secret.key", "rb") as key_file:
+    with open("secret.key", "r") as key_file:
         return key_file.read()
 
 def encrypt_text(text, key):
