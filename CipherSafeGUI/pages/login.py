@@ -1,0 +1,81 @@
+import flet as ft
+from pages.home import theme_app
+
+def login_view(page):
+    top_image = ft.Image(src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHR3NDRpbnpoYW1rczg5aXpyeXk2aHhkc2FwdXUwMnVveGc2cmFnciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/JOQkruq1AlaZ9Qq4OR/giphy.gif",
+                         width=200, height=200)
+    
+    key_field = ft.TextField(
+        hint_text="Enter your password",
+        color=theme_app["text_color"],
+        password=True,
+        text_align=ft.TextAlign.CENTER,
+        height=40,
+        can_reveal_password=True,
+        cursor_color=theme_app["input_cursor_color"],
+        selection_color=theme_app["input_selection_color"],
+        border_color=theme_app["input_border_color"],
+        fill_color=theme_app["input_fill_color"],
+        hover_color=theme_app["input_hover_color"]
+    )
+
+    key_field_container = ft.Container(
+        content=key_field,
+        width=280,
+        padding=10,
+        bgcolor=ft.Colors.TRANSPARENT,
+        border_radius=8
+    )
+
+    toggle_password_button = ft.IconButton(
+        icon=ft.Icons.VISIBILITY,
+        icon_color=theme_app["text_color"],
+        on_click=lambda e: key_field.update(password=not key_field.password)
+    )
+
+    key_field_row = ft.Row(
+        controls=[key_field_container, toggle_password_button],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=10
+    )
+
+    submit = ft.ElevatedButton(
+        "Enter",
+        height=50,
+        width=280,
+        on_click=lambda e: print("Button clicked"),
+        bgcolor=theme_app["button_bg_color"],
+        color=theme_app["text_color"],
+        elevation=5,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"])
+        )
+    )
+
+    login_container = ft.Container(
+        content=ft.Column(
+            controls=[top_image, key_field_row, submit],
+            alignment="center",
+            horizontal_alignment="center",
+            spacing=20
+        ),
+        width=320,
+        height=450,
+        padding=20,
+        bgcolor=theme_app["container_bg_colors"][0],
+        border_radius=15,
+        alignment=ft.alignment.center,
+        border=ft.border.all(2, theme_app["border_color"])
+    )
+
+    return ft.View(
+        route="/login",
+        controls=[  
+            ft.Container(
+                content=login_container,
+                expand=True,
+                alignment=ft.alignment.center
+            )
+        ],
+        bgcolor=theme_app["background_colors"][0]
+    )
