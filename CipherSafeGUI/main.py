@@ -31,4 +31,4 @@ def main(page: ft.Page):
     page.go("/")
 
 
-ft.app(target=main)
+ft.app(target=main,web_renderer="html")

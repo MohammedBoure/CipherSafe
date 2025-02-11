@@ -1,5 +1,9 @@
-def DataPreparationTuple(data):
+def DataPreparationTuple(adress):
     """
+    Parses a file containing account credentials grouped under platform names 
+    and returns a structured dictionary.
+
+    Example Input:
     '''
     :steam
     gmail1@gmail.com password1 azeazeaea azeaze
@@ -7,42 +11,40 @@ def DataPreparationTuple(data):
     :riot
     gmail3@gmail.com password3
     ''' 
-    to:
+
+    Output:
     {
-        "steam":[["gmail1@gmail.com","password1"]["gmail2@gmail.com","password2"]],
-        "riot":[["gmail3@gmail.com","password3"]]
+        "steam": [["gmail1@gmail.com", "password1", "azeazeaea", "azeaze"], ["gmail2@gmail.com", "password2"]],
+        "riot": [["gmail3@gmail.com", "password3"]]
     }  
     """
-    result = {}
 
-    sections = data.strip().split(":") 
+    with open(adress, 'r', encoding='utf-8') as file:
+        data = file.read()
+
+    result = {}
+    sections = data.strip().split(":")  
     
     for section in sections:
-        lines = section.strip().split("\n")  
-        if not lines or len(lines) < 2:
-            continue
+        lines = section.strip().split("\n")  #
+        
+        if not lines or len(lines[0].strip()) == 0:
+            continue 
         
         platform = lines[0].strip() 
-        accounts = [line.split(maxsplit=1) for line in lines[1:] if line]
         
-        formatted_accounts = []
-        for account in accounts:
-            if len(account) == 2:
-                email, rest = account
-                credentials = rest.split()
-                formatted_accounts.append([email] + credentials)
-            else:
-                formatted_accounts.append(account)
-            
+        accounts = []
+        for line in lines[1:]:  
+            parts = line.split()
+            if parts:  
+                accounts.append(parts)
+        
         if platform in result:
-            result[platform].extend(formatted_accounts)
+            result[platform].extend(accounts)  
         else:
-            result[platform] = formatted_accounts
-    
+            result[platform] = accounts
+
     return result
-
-
-
 
 def get_best_match(data, query):
     """
@@ -66,29 +68,23 @@ def get_best_match(data, query):
 
     return {best_match: data[best_match]} if best_match and match_scores[best_match] > 0 else {}
 
-
-
-
-
 def convert_data_format(data):
     result = []
     for platform, accounts in data.items():
+        result.append(f":{platform}")
         for account in accounts:
-            result.append(f":{platform}")  
-            result.append(" ".join(account))
-    return "\n".join(result)
+            result.append(" ".join(account))  
+        
+        result.append("") 
+    return "\n".join(result).strip()
 
+def save_data(namefile,data):
+    with open(namefile,'w') as file:
+        file.write(data)
 
 
 
 if __name__ == "__main__":
-    accounts_data = {
-    "steam": [["gmail1@gmail.com", "password1"], ["gmail2@gmail.com", "password2"]],
-    "riot": [["gmail3@gmail.com", "password3", "password4"]],
-    "epicgames": [["gmail4@gmail.com", "password5"]],
-    "steeam": [["gmail5@gmail.com", "password6"]],
-    }
-    query = "ste"
-    results = get_best_match(accounts_data, query)
-
-    print(results)
+    a = {'gog': [['hjesxsjd@gmail.com', 'zDJHpFFpAw', 'd', 'i', 'y', 'k', 'l'], ['0deusfzm@gmail.com', 'qdbI6LnF8p', 'o', 'j', 'g', 's', 'n'], ['ye0ak369@yahoo.com', 'fVlfVFLjgU', 'v', 'p', 'q', 'c', 'p']], 'google': []}
+    
+    print(convert_data_format(a))

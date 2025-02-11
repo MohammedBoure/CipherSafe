@@ -1,56 +1,10 @@
 import flet as ft
-from utils.BusinessLogic import DataPreparationTuple, get_best_match,convert_data_format
+from utils.BusinessLogic import DataPreparationTuple, get_best_match,convert_data_format,save_data
 from storage.config import themes,theme,font_size
 
 
 
-data = """:battlenet
-u9kfazeaezaeazeazezaesqddsdsqdqsdazeazezaedqsdsqdsqdaeazeazdsqdqsdqdaazeazeawcxche3m@yahoo.com Ehy92MRxPe o o z z i aze azeaze azeaeze zaea
-:epic
-n69kp0wz@yahoo.com ilXZmLbwWd p t 
-:battlenet
-8nzg2nyi@gmail.com q1djSuhNhk iazeaezaezae jazeazeazezaea lazeazezaezaezaezaezaezaezaezae iazazeazeazezae iaezaezaezaeaz
-l470djdc@outlook.com izwlfog4i2 v h b n l
-d0uje6j3@outlook.com s6udIFu0aO j o
-3ihjsjx9@gmail.com Bkrz1TRit5 o 
-deig9fyz@yahoo.com zBzG7dEElP t h b o g
-:uplay
-7iacznna@outlook.com ap2MbyqIcO u d p p a
-q4sfx3ov@gmail.com uGeEeVczYm t p y x f
-lfqvp6ei@yahoo.com abkzE5RboB e 
-gk8im8t3@yahoo.com fFBzl8nXA9 a t w c j
-6qj2b0e0@yahoo.com 53Z6jLhJcN k 
-:steam
-2tzfjtyc@gmail.com CCEZIuVrXa y n v j w
-:origin
-loy6po7y@yahoo.com 1KuJTnwuKB r n q m m
-rg2t6jke@yahoo.com PCtzYhSEMn b r l i g
-:gog
-hjesxsjd@gmail.com zDJHpFFpAw d i y k l
-0deusfzm@gmail.com qdbI6LnF8p o j g s n
-ye0ak369@yahoo.com fVlfVFLjgU v p q c p
-:steam
-8ezfjukv@gmail.com 5bin6QCImS k l g a c
-s7oc32x7@gmail.com iR3fcNBciV u c o o g
-t586925h@outlook.com wW0jYWZlDe y m a h u
-x1spqcq7@yahoo.com Pz0L6Ab4Ta h z x z u
-v2uxd27p@outlook.com X1qkfy7JFD c v c m g
-:uplay
-45rgrj37@gmail.com CMxWL6y52K w o y s h
-p0c7xwps@yahoo.com fOdr3q58Wy s c f e h
-pvu2kv8q@gmail.com TmUQrPVkCZ p n o s c
-4gs30mjl@outlook.com zXUNDvraxA e z e k d
-d0xo8qnm@yahoo.com pMcFLOvzW8 n v o a c
-:battlenet
-nx4aad3q@outlook.com Dd5cthdvd3 z z m n r
-fo0lejw5@gmail.com 6yHp44X39p q z m e k
-:origin
-jhse4ik8@gmail.com s7414mwXu9 r i b d j
-vlyjjum5@outlook.com CWoR5Rr2Jh s c s e s
-zjaaqbc4@outlook.com k3MsCvXtqV r p f l c
-fz65s9z5@yahoo.com p942GtTkzy m e u v k
-"""
-tlist = DataPreparationTuple(data)
+tlist = DataPreparationTuple("storage/data/data")
 theme_app = themes[theme]
 
 data_account = []
@@ -60,25 +14,31 @@ def Pass(e):
     pass
 
 def create_icon_button(icon, tooltip, click): 
-    
-    return ft.IconButton(
+    btn = ft.IconButton(
         icon=icon,
         tooltip=tooltip,
         icon_size=50,
-        width=80,
-        height=80,
+        width=70,
+        height=70,
         on_click=click,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"]),
             bgcolor=theme_app["button_bg_color"],
-            padding=10,
+            padding=0,
             overlay_color=theme_app["button_overlay_color"],
-        )
+        ),
     )
-  
+
+    container = ft.Container(
+        content=btn,
+        scale=1,
+        animate_scale=ft.Animation(200, ft.AnimationCurve.EASE_IN_OUT),
+        on_hover=lambda e: (setattr(e.control, "scale", 1.2 if e.data == "true" else 1), e.control.update()),
+    )
+
+    return container
 
 def home_view(page):
-    
     def on_text_change(e):
         try:
             query = e.control.value.lower()
@@ -90,7 +50,6 @@ def home_view(page):
         colm2_container1.content.controls = [list_panels(list_data, page)]
         
         colm2_container1.update()  
-
 
     text_field = ft.TextField(
         label="البحث",
@@ -108,14 +67,14 @@ def home_view(page):
         selection_color=theme_app["input_selection_color"],
         on_change=on_text_change  
     )
-    
     buttons = [
         create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _:print(1)),
         create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),
-        create_icon_button(ft.icons.BUILD, "صفحة التجهيز", Pass),
-        create_icon_button(ft.icons.SETTINGS, "الإعدادات", Pass),
-        create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", Pass),
+        create_icon_button(ft.icons.BUILD, "صفحة التجهيز", lambda _: None),  
+        create_icon_button(ft.icons.SETTINGS, "الإعدادات", lambda _: None),
+        create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", lambda _: None),
     ]
+          
 
     colm1_container1 = ft.Container(
         content=ft.Row(
@@ -161,6 +120,114 @@ def home_view(page):
         bgcolor=theme_app["container_bg_colors"][1]
     )
 
+    def close_dlg_accoun_name(e,bol):
+        global name_of_account_delete
+        if not bol:
+            dlg_modal_accoun_name.open = False
+            e.control.page.update()
+        else:
+            tlist.pop(name_of_account_delete,None)
+            save_data("storage/data/data",convert_data_format(tlist))  
+            dlg_modal_accoun_name.open = False
+            
+            colm2_container1.content.controls.clear()
+            colm2_container1.content.controls = [list_panels(tlist, page)]
+            
+            e.control.page.update()   
+            colm2_container1.update()         
+    dlg_modal_accoun_name = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("التأكيد",rtl=True),
+        content=ft.Text("هل أنت متأكد من حدف هده الحاسابات!",rtl=True),
+        actions=[
+            ft.TextButton(
+                "نعم",
+                on_click=lambda _:close_dlg_accoun_name(_,True),
+                style=ft.ButtonStyle(
+                    bgcolor=theme_app["button_overlay_color"],
+                    color=theme_app["button_text_color"],
+                    shape=ft.RoundedRectangleBorder(radius=10),
+                    overlay_color=theme_app["button_bg_color"],
+                    padding=ft.Padding(12, 8, 12, 8),
+                )
+            ),
+            ft.TextButton(
+                "لا",
+                on_click=lambda _:close_dlg_accoun_name(_,False),
+                style=ft.ButtonStyle(
+                    bgcolor=theme_app["button_overlay_color"],
+                    color=theme_app["button_text_color"],
+                    shape=ft.RoundedRectangleBorder(radius=10),
+                    overlay_color=theme_app["button_bg_color"],
+                    padding=ft.Padding(12, 8, 12, 8),
+                )
+            ),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+    )
+    def open_dlg_accoun_name(e,name,):
+        global name_of_account_delete
+        name_of_account_delete = name
+        e.control.page.overlay.append(dlg_modal_accoun_name)
+        dlg_modal_accoun_name.open = True
+        e.control.page.update()
+     
+     
+    def close_dlg_accoun(e,bol):
+        global account_delete
+        if not bol:
+            dlg_modal_account.open = False
+            e.control.page.update()
+        else:
+            print(account_delete)
+            tlist[account_delete[0]].pop(account_delete[1])
+            save_data("storage/data/data",convert_data_format(tlist))  
+            dlg_modal_account.open = False
+            
+            colm2_container1.content.controls.clear()
+            colm2_container1.content.controls = [list_panels(tlist, page)]
+            
+            e.control.page.update()   
+            colm2_container1.update()             
+    dlg_modal_account = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("التأكيد",rtl=True),
+        content=ft.Text("هل أنت متأكد من حدف هدا الحساب!",rtl=True),
+        actions=[
+            ft.TextButton(
+                "نعم",
+                on_click=lambda _:close_dlg_accoun(_,True),
+                style=ft.ButtonStyle(
+                    bgcolor=theme_app["button_overlay_color"],
+                    color=theme_app["button_text_color"],
+                    shape=ft.RoundedRectangleBorder(radius=10),
+                    overlay_color=theme_app["button_bg_color"],
+                    padding=ft.Padding(12, 8, 12, 8),
+                )
+            ),
+            ft.TextButton(
+                "لا",
+                on_click=lambda _:close_dlg_accoun(_,False),
+                style=ft.ButtonStyle(
+                    bgcolor=theme_app["button_overlay_color"],
+                    color=theme_app["button_text_color"],
+                    shape=ft.RoundedRectangleBorder(radius=10),
+                    overlay_color=theme_app["button_bg_color"],
+                    padding=ft.Padding(12, 8, 12, 8),
+                )
+            ),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+        on_dismiss=lambda e: print("Modal dialog dismissed!"),
+    )
+    def open_dlg_accoun(e,name,index):
+        global account_delete
+        account_delete = [name,index]
+        e.control.page.overlay.append(dlg_modal_account)
+        dlg_modal_account.open = True
+        e.control.page.update()
+
 
     def on_click_edit_btn(name,index,page):
         data_account.clear()
@@ -181,16 +248,23 @@ def home_view(page):
         
         controls_list.append(ft.Row(
             controls=[
-                ft.Text(""),
                 ft.IconButton(
                     icon=ft.icons.EDIT,
                     icon_color=theme_app["expansion_panel_icon"],
                     icon_size=20,
                     tooltip="تعديل",
                     on_click=lambda _: on_click_edit_btn(name, index, page)
+                ),
+                ft.IconButton(
+                    icon=ft.icons.DELETE,
+                    icon_color=theme_app["expansion_panel_icon"],
+                    icon_size=20,
+                    tooltip="تعديل",
+                    on_click=lambda _: open_dlg_accoun(_,name, index)
                 )
+                
             ],
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN  
+            alignment=ft.MainAxisAlignment.CENTER  
         )
         )
         
@@ -224,11 +298,10 @@ def home_view(page):
             height=i * 40 + 50,  
             bgcolor=theme_app["panel_card_bg"],
             border_radius=5,
-            padding=10,
+            padding=ft.padding.only(left=20,right=15),
             margin=5,
             content=ft.Column(controls=controls_list, spacing=0.1)
         )
-
 
     def Panel(name, page):
         control_list = []
@@ -250,6 +323,11 @@ def home_view(page):
                             icon=ft.Icons.ADD,
                             icon_color=theme_app["expansion_panel_icon"],
                             on_click=lambda _:on_click_add_btn(name,page)
+                        ),
+                        ft.IconButton(
+                            icon=ft.Icons.DELETE,
+                            icon_color=theme_app["expansion_panel_icon"],
+                            on_click=lambda _:open_dlg_accoun_name(_,name),
                         )
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN 
@@ -293,8 +371,8 @@ def home_view(page):
         padding=10
     )
 
-    colm1 = ft.Column(controls=[colm1_container1, colm1_container2], expand=3)
-    colm2 = ft.Column(controls=[colm2_container1], expand=7)
+    colm1 = ft.Column(controls=[colm1_container1, colm1_container2], expand=4)
+    colm2 = ft.Column(controls=[colm2_container1], expand=6)
 
     
     

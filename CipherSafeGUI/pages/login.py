@@ -2,7 +2,7 @@ import flet as ft
 from pages.home import theme_app
 
 def login_view(page):
-    top_image = ft.Image(src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHR3NDRpbnpoYW1rczg5aXpyeXk2aHhkc2FwdXUwMnVveGc2cmFnciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/JOQkruq1AlaZ9Qq4OR/giphy.gif",
+    top_image = ft.Image(src="assets/1.gif",
                          width=200, height=200)
     
     key_field = ft.TextField(
