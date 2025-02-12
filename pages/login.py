@@ -39,11 +39,14 @@ def login_view(page):
         spacing=10
     )
 
+    def on_submit(e):
+        page.go("/")
+
     submit = ft.ElevatedButton(
         "Enter",
         height=50,
         width=280,
-        on_click=lambda e: print("Button clicked"),
+        on_click=lambda e: on_submit(e),
         bgcolor=theme_app["button_bg_color"],
         color=theme_app["text_color"],
         elevation=5,

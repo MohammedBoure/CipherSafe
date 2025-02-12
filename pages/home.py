@@ -1,17 +1,12 @@
 import flet as ft
 from utils.BusinessLogic import DataPreparationTuple, get_best_match,convert_data_format,save_data
 from storage.config import themes,theme,font_size
+import utils.shared as shared
 
 
-
-tlist = DataPreparationTuple("storage/data/data")
+shared.tlist = DataPreparationTuple("storage/data/data")
 theme_app = themes[theme]
 
-data_account = []
-name_account = ""
-
-def Pass(e):
-    pass
 
 def create_icon_button(icon, tooltip, click): 
     btn = ft.IconButton(
@@ -44,7 +39,7 @@ def home_view(page):
             query = e.control.value.lower()
         except Exception:
             query = ""
-        list_data = get_best_match(tlist, query)
+        list_data = get_best_match(shared.tlist, query)
         
         colm2_container1.content.controls.clear()
         colm2_container1.content.controls = [list_panels(list_data, page)]
@@ -68,11 +63,10 @@ def home_view(page):
         on_change=on_text_change  
     )
     buttons = [
-        create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _:print(1)),
+        create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _:None),
         create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),
-        create_icon_button(ft.icons.BUILD, "صفحة التجهيز", lambda _: None),  
-        create_icon_button(ft.icons.SETTINGS, "الإعدادات", lambda _: None),
-        create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", lambda _: None),
+        create_icon_button(ft.icons.SETTINGS, "الإعدادات", lambda _: page.go("/settings")),
+        create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", lambda _: page.go("/login")),
     ]
           
 
@@ -96,7 +90,7 @@ def home_view(page):
         content=ft.Stack(
             controls=[
                 ft.Image(
-                    src="https://media2.giphy.com/media/M4VVhrbRI5vGsu4CGT/giphy.gif",
+                    src="assets/2.gif",
                     width=200, height=200, top=-75
                 ),
                 ft.Container(
@@ -120,29 +114,32 @@ def home_view(page):
         bgcolor=theme_app["container_bg_colors"][1]
     )
 
-    def close_dlg_accoun_name(e,bol):
-        global name_of_account_delete
-        if not bol:
-            dlg_modal_accoun_name.open = False
+    def close_dlg_accoun_name(e, bol):
+        try:
+            if not bol:
+                dlg_modal_accoun_name.open = False
+            else:
+                if shared.name_of_account_delete in shared.tlist:
+                    shared.tlist.pop(shared.name_of_account_delete)
+                    save_data("storage/data/data", convert_data_format(shared.tlist))
+
+                dlg_modal_accoun_name.open = False
+                colm2_container1.content.controls = [list_panels(shared.tlist, e.control.page)]
+                colm2_container1.update()
+
+            dlg_modal_accoun_name.update()
             e.control.page.update()
-        else:
-            tlist.pop(name_of_account_delete,None)
-            save_data("storage/data/data",convert_data_format(tlist))  
-            dlg_modal_accoun_name.open = False
-            
-            colm2_container1.content.controls.clear()
-            colm2_container1.content.controls = [list_panels(tlist, page)]
-            
-            e.control.page.update()   
-            colm2_container1.update()         
+        except Exception as ex:
+            print(f"Exception: {ex}")
+
     dlg_modal_accoun_name = ft.AlertDialog(
         modal=True,
-        title=ft.Text("التأكيد",rtl=True),
-        content=ft.Text("هل أنت متأكد من حدف هده الحاسابات!",rtl=True),
+        title=ft.Text("التأكيد", rtl=True),
+        content=ft.Text("هل أنت متأكد من حذف هذه الحسابات؟", rtl=True),
         actions=[
             ft.TextButton(
                 "نعم",
-                on_click=lambda _:close_dlg_accoun_name(_,True),
+                on_click=lambda _: close_dlg_accoun_name(_, True),
                 style=ft.ButtonStyle(
                     bgcolor=theme_app["button_overlay_color"],
                     color=theme_app["button_text_color"],
@@ -153,7 +150,7 @@ def home_view(page):
             ),
             ft.TextButton(
                 "لا",
-                on_click=lambda _:close_dlg_accoun_name(_,False),
+                on_click=lambda _: close_dlg_accoun_name(_, False),
                 style=ft.ButtonStyle(
                     bgcolor=theme_app["button_overlay_color"],
                     color=theme_app["button_text_color"],
@@ -166,30 +163,40 @@ def home_view(page):
         actions_alignment=ft.MainAxisAlignment.END,
         on_dismiss=lambda e: print("Modal dialog dismissed!"),
     )
-    def open_dlg_accoun_name(e,name,):
-        global name_of_account_delete
-        name_of_account_delete = name
-        e.control.page.overlay.append(dlg_modal_accoun_name)
-        dlg_modal_accoun_name.open = True
-        e.control.page.update()
-     
+
+    def open_dlg_accoun_name(e, name):
+        try:
+            shared.name_of_account_delete = name
+
+            if dlg_modal_accoun_name not in e.control.page.overlay:
+                e.control.page.overlay.append(dlg_modal_accoun_name)
+                e.control.page.update()  
+
+            dlg_modal_accoun_name.open = True
+            e.control.page.update() 
+
+        except Exception as ex:
+            print(f"Exception: {ex}")
+
      
     def close_dlg_accoun(e,bol):
-        global account_delete
-        if not bol:
-            dlg_modal_account.open = False
-            e.control.page.update()
-        else:
-            print(account_delete)
-            tlist[account_delete[0]].pop(account_delete[1])
-            save_data("storage/data/data",convert_data_format(tlist))  
-            dlg_modal_account.open = False
-            
-            colm2_container1.content.controls.clear()
-            colm2_container1.content.controls = [list_panels(tlist, page)]
-            
-            e.control.page.update()   
-            colm2_container1.update()             
+        try:
+            print(shared.account_delete,"1111111111111")
+            if not bol:
+                dlg_modal_account.open = False
+                e.control.page.update()
+            else:
+                shared.tlist[shared.account_delete[0]].pop(shared.account_delete[1])
+                save_data("storage/data/data",convert_data_format(shared.tlist))  
+                dlg_modal_account.open = False
+                
+                colm2_container1.content.controls.clear()
+                colm2_container1.content.controls = [list_panels(shared.tlist, page)]
+                
+                e.control.page.update()   
+                colm2_container1.update()  
+        except Exception as ex:
+            print(f"Exception : {ex}")           
     dlg_modal_account = ft.AlertDialog(
         modal=True,
         title=ft.Text("التأكيد",rtl=True),
@@ -221,26 +228,48 @@ def home_view(page):
         actions_alignment=ft.MainAxisAlignment.END,
         on_dismiss=lambda e: print("Modal dialog dismissed!"),
     )
-    def open_dlg_accoun(e,name,index):
-        global account_delete
-        account_delete = [name,index]
-        e.control.page.overlay.append(dlg_modal_account)
-        dlg_modal_account.open = True
-        e.control.page.update()
+    def open_dlg_accoun(e, name, index):
+        try:
+            shared.account_delete = [name, index]
+
+            if dlg_modal_account not in e.control.page.overlay:
+                e.control.page.overlay.append(dlg_modal_account)
+                e.control.page.update()  
+                
+            dlg_modal_account.open = True
+            e.control.page.update()  
+
+        except Exception as ex:
+            print(f"Exception: {ex}")
 
 
-    def on_click_edit_btn(name,index,page):
-        data_account.clear()
-        data_account.append(name)
-        data_account.append(tlist[name][index])
-        page.go("/add_account")
+    def on_click_edit_btn(name, index, page):
+        try:
+            if name not in shared.tlist:
+                print(f"Error: Account '{name}' not found in tlist")
+                return  
+            if index < 0 or index >= len(shared.tlist[name]):
+                print(f"Error: Invalid index {index} for account '{name}'")
+                return  
+
+            shared.data_account.clear()
+            shared.data_account.append(name)
+            shared.data_account.append(shared.tlist[name][index])
+
+            page.update()
+            page.go("/add_account")
+
+        except Exception as ex:
+            print(f"Exception: {ex}")
+
 
     def on_click_add_btn(name,page):
-        global name_account
-        name_account = ""
-        name_account = name
-        page.go("/add_account")
-
+        try:
+            shared.name_account = name
+            page.go("/add_account")
+        except Exception as ex:
+            print(f"Exception : {ex}")
+                    
     def Panel_card(name, index, page):
         controls_list = []
         i = 0
@@ -249,14 +278,14 @@ def home_view(page):
         controls_list.append(ft.Row(
             controls=[
                 ft.IconButton(
-                    icon=ft.icons.EDIT,
+                    icon=ft.Icons.EDIT,
                     icon_color=theme_app["expansion_panel_icon"],
                     icon_size=20,
                     tooltip="تعديل",
                     on_click=lambda _: on_click_edit_btn(name, index, page)
                 ),
                 ft.IconButton(
-                    icon=ft.icons.DELETE,
+                    icon=ft.Icons.DELETE,
                     icon_color=theme_app["expansion_panel_icon"],
                     icon_size=20,
                     tooltip="تعديل",
@@ -268,7 +297,7 @@ def home_view(page):
         )
         )
         
-        for item in tlist[name][index]:
+        for item in shared.tlist[name][index]:
             i += 1
             text_width = len(item) * 10 
             max_width = max(max_width, text_width) 
@@ -283,7 +312,7 @@ def home_view(page):
                                 text_align=ft.TextAlign.LEFT
                                 ),
                         ft.IconButton(
-                            icon=ft.icons.COPY,
+                            icon=ft.Icons.COPY,
                             icon_color=theme_app["expansion_panel_icon"],
                             on_click=lambda e, text=item: page.set_clipboard(text),
                         )
@@ -295,7 +324,7 @@ def home_view(page):
             
         return ft.Container(
             width=max_width + 100, 
-            height=i * 40 + 50,  
+            height=i * 45 + 50,  
             bgcolor=theme_app["panel_card_bg"],
             border_radius=5,
             padding=ft.padding.only(left=20,right=15),
@@ -305,7 +334,7 @@ def home_view(page):
 
     def Panel(name, page):
         control_list = []
-        for i in range(len(tlist[name])):
+        for i in range(len(shared.tlist[name])):
             control_list.append(Panel_card(name, i, page))
         return ft.ExpansionPanel(
             header=ft.Container(
@@ -358,7 +387,7 @@ def home_view(page):
 
     colm2_container1 = ft.Container(
         content=ft.Column(
-            controls=[list_panels(tlist, page)],
+            controls=[list_panels(shared.tlist, page)],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             expand=True,
@@ -374,7 +403,17 @@ def home_view(page):
     colm1 = ft.Column(controls=[colm1_container1, colm1_container2], expand=4)
     colm2 = ft.Column(controls=[colm2_container1], expand=6)
 
-    
+    """def threadingerue():
+        while True:
+            time.sleep(1)
+            try:
+                print(name_of_account_delete)
+            except:
+                pass
+            print(colm2_container1.content)
+            
+
+    threading.Thread(target=threadingerue, args=()).start()"""
     
     return ft.View(
         route="/",

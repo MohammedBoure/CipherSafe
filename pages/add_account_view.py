@@ -1,20 +1,12 @@
 import flet as ft
-import pages.home as home
-from storage.config import font_size
+import utils.shared as shared
+from storage.config import themes,theme,font_size
 from utils.BusinessLogic import convert_data_format,save_data
 import threading
 
 
-theme_app = home.theme_app
+theme_app = themes[theme]
 
-
-
-    
-def add_account(name_account,data,page):
-    home.tlist[name_account].append(data)
-    save_data("storage/data/data",convert_data_format(home.tlist))
-    text_input.content.value = ""
-    page.update()
 
 def colm2_container1_colm(page):
     def show_banner():
@@ -25,16 +17,30 @@ def colm2_container1_colm(page):
         banner.open = False
         page.update()
     banner = ft.Banner(
-            bgcolor=ft.colors.GREEN_100, 
-            leading=ft.Icon(ft.icons.CHECK_CIRCLE, color=ft.colors.GREEN, size=40),
-            content=ft.Text("تمت العملية بنجاح!", color=ft.colors.BLACK),
+            bgcolor=ft.Colors.GREEN_100, 
+            leading=ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.GREEN, size=40),
+            content=ft.Text("تمت العملية بنجاح!", color=ft.Colors.BLACK),
             actions=[ft.TextButton("", disabled=True)], 
             force_actions_below=True,
     )
+    page.overlay.clear()
     page.overlay.append(banner)
     
-    if home.data_account:
-        data_account = home.data_account[:] if home.data_account and len(home.data_account) > 0 else ["", []]
+    ''' def threadingerue():
+        while True:
+            time.sleep(1)
+            print(shared.data_account)
+            print(shared.name_account)
+            
+    threading.Thread(target=threadingerue, args=()).start()'''
+    
+    if shared.data_account:
+        data_account = shared.data_account[:]
+        print(data_account)
+
+        if not data_account or len(data_account) < 2:
+            data_account = ["", []]
+        print(data_account)
 
         text_input_name = ft.TextField(
             label="الحساب",
@@ -61,23 +67,23 @@ def colm2_container1_colm(page):
             new_value = data[1]
 
             if old_key == new_key:
-                home.tlist[old_key][home.tlist[old_key].index(data_account[1])] = new_value
+                shared.tlist[old_key][shared.tlist[old_key].index(data_account[1])] = new_value
             else:
-                if new_key in home.tlist:
-                    home.tlist[new_key].append(new_value)
+                if new_key in shared.tlist:
+                    shared.tlist[new_key].append(new_value)
                 else:
-                    home.tlist[new_key]=[new_value]
-                    
+                    shared.tlist[new_key] = [new_value]
 
-            save_data("storage/data/data", convert_data_format(home.tlist))
+            save_data("storage/data/data", convert_data_format(shared.tlist))
 
             show_banner()
 
             text_input_data.value = ""
             text_input_name.value = ""
+            text_input_data.update()
+            text_input_name.update()
             page.update()
 
-        print(home.data_account)
         return ft.Column(
             controls=[
                 ft.Container(
@@ -102,9 +108,8 @@ def colm2_container1_colm(page):
                             padding=ft.padding.all(10),
                             bgcolor=theme_app["button_bg_color"],
                             color=theme_app["button_text_color"],
-                            overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
-                            text_style=ft.TextStyle(size=font_size["button"]),
-                        ),
+                            overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+                            text_style=ft.TextStyle(size=font_size["button"])),
                         width=200,
                         height=50,
                     ),
@@ -115,28 +120,71 @@ def colm2_container1_colm(page):
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=20
-        )  
-    elif home.name_account:
-        name_account = home.name_account[:] if home.name_account and len(home.name_account) > 0 else ""
+        )
+
+    elif shared.name_account:
+        account_name = shared.name_account  # حفظ القيمة في متغير محلي
+        print(account_name)
+
+        def toggle_save_button(e):
+            save_button.disabled = not bool(e.control.value.strip())  # تمكين أو تعطيل الزر بناءً على الإدخال
+            save_button.update()  # تحديث الزر
+
         text_input = ft.TextField(
-                        label="معلومات",
-                        multiline=True,
-                        min_lines=2,
-                        max_lines=6,
-                        text_size=font_size["input"],
-                        border_radius=10,
-                    )
-        def add_account(name_account,data,page):
-            home.tlist[name_account].append(data)
-            save_data("storage/data/data",convert_data_format(home.tlist))
-            show_banner()
-            text_input.value = ""
-            page.update()
-        
+            label="معلومات",
+            multiline=True,
+            min_lines=2,
+            max_lines=6,
+            text_size=font_size["input"],
+            border_radius=10,
+            on_change=toggle_save_button  # استدعاء الدالة عند التغيير
+        )
+
+        save_button = ft.ElevatedButton(
+            text="حفظ المعلومات",
+            on_click=lambda e: add_account(account_name, text_input.value.split("\n"), page),
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=10),
+                padding=ft.padding.all(10),
+                bgcolor=theme_app["button_bg_color"],
+                color=theme_app["button_text_color"],
+                overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+                text_style=ft.TextStyle(size=font_size["button"])),
+            width=200,
+            height=50,
+            disabled=True  # يكون معطلاً في البداية
+        )
+
+        def add_account(name_account, data, page):
+            try:
+                if not name_account:
+                    print("Error: name_account is empty!")
+                    return  
+
+                if name_account not in shared.tlist:
+                    print(f"Error: Account '{name_account}' not found in tlist! Creating a new entry.")
+                    shared.tlist[name_account] = [] 
+
+                if not data or all(line.strip() == "" for line in data):  # تجنب إضافة بيانات فارغة
+                    print("Warning: Empty data provided, nothing to add.")
+                    return 
+
+                shared.tlist[name_account].append(data)
+                save_data("storage/data/data", convert_data_format(shared.tlist))
+
+                show_banner()
+                text_input.value = ""
+                text_input.update()  # تحديث الإدخال
+                save_button.disabled = True  # تعطيل الزر بعد الإضافة
+                page.update() 
+
+            except Exception as ex:
+                print(f"Exception: {ex}")
+
         return ft.Column(
             controls=[
                 ft.Container(
-                    content=ft.Text(f"إضافة حساب {home.name_account}",
+                    content=ft.Text(f"إضافة حساب {account_name}",
                                     size=font_size["title"],
                                     weight=ft.FontWeight.BOLD,
                                     rtl=True),
@@ -148,20 +196,7 @@ def colm2_container1_colm(page):
                     padding=ft.padding.symmetric(horizontal=20),
                 ),
                 ft.Container(
-                    content=ft.ElevatedButton(
-                        text="حفظ المعلومات",
-                        on_click=lambda e: add_account(name_account,text_input.value.split("\n"),page),
-                        style=ft.ButtonStyle(
-                            shape=ft.RoundedRectangleBorder(radius=10),
-                            padding=ft.padding.all(10),
-                            bgcolor=theme_app["button_bg_color"],
-                            color=theme_app["button_text_color"],
-                            overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
-                            text_style=ft.TextStyle(size=font_size["button"]),
-                        ),
-                        width=200,
-                        height=50
-                    ),
+                    content=save_button,
                     alignment=ft.alignment.center,
                     padding=ft.padding.only(top=20),
                 )
@@ -170,6 +205,7 @@ def colm2_container1_colm(page):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=20
         )
+
     else:
         text_input = ft.TextField(
                         label="معلومات",
@@ -180,8 +216,8 @@ def colm2_container1_colm(page):
                         border_radius=10,
                     )
         def add_name_of_account(name,page):
-            home.tlist.update({name:[]})
-            save_data("storage/data/data",convert_data_format(home.tlist))
+            shared.tlist.update({name:[]})
+            save_data("storage/data/data",convert_data_format(shared.tlist))
             show_banner()
             text_input.value = ""
             page.update()
@@ -190,7 +226,7 @@ def colm2_container1_colm(page):
         return ft.Column(
             controls=[
                 ft.Container(
-                    content=ft.Text(f"إضافة حساب {home.name_account}", size=font_size["title"], weight=ft.FontWeight.BOLD,rtl=True),
+                    content=ft.Text(f"إضافة حساب {shared.name_account}", size=font_size["title"], weight=ft.FontWeight.BOLD,rtl=True),
                     alignment=ft.alignment.center,
                     padding=ft.padding.symmetric(vertical=15),
                 ),
@@ -207,7 +243,7 @@ def colm2_container1_colm(page):
                             padding=ft.padding.all(10),
                             bgcolor=theme_app["button_bg_color"],
                             color=theme_app["button_text_color"],
-                            overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+                            overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
                             text_style=ft.TextStyle(size=font_size["button"]),
                         ),
                         width=200,
@@ -222,15 +258,37 @@ def colm2_container1_colm(page):
             spacing=20
         )
 
+def create_icon_button(icon, tooltip, click): 
+    btn = ft.IconButton(
+        icon=icon,
+        tooltip=tooltip,
+        icon_size=50,
+        width=70,
+        height=70,
+        on_click=click,
+        style=ft.ButtonStyle(
+            shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"]),
+            bgcolor=theme_app["button_bg_color"],
+            padding=0,
+            overlay_color=theme_app["button_overlay_color"],
+        ),
+    )
 
+    container = ft.Container(
+        content=btn,
+        scale=1,
+        animate_scale=ft.Animation(200, ft.AnimationCurve.EASE_IN_OUT),
+        on_hover=lambda e: (setattr(e.control, "scale", 1.2 if e.data == "true" else 1), e.control.update()),
+    )
+
+    return container
 
 def add_account_view(page):    
     buttons = [
-        home.create_icon_button(ft.icons.HOME, "الصفحة الرئيسية",lambda _:page.go("/")),
-        home.create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء",home.Pass),
-        home.create_icon_button(ft.icons.BUILD, "صفحة التجهيز",home.Pass),
-        home.create_icon_button(ft.icons.SETTINGS, "الإعدادات",home.Pass),
-        home.create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج",home.Pass),
+        create_icon_button(ft.Icons.HOME, "الصفحة الرئيسية",lambda _:page.go("/")),
+        create_icon_button(ft.Icons.ADD_CIRCLE, "صفحة الإنشاء",lambda _:None),
+        create_icon_button(ft.Icons.SETTINGS, "الإعدادات",lambda _:page.go("/settings")),
+        create_icon_button(ft.Icons.LOGOUT, "تسجيل الخروج",lambda _:page.go("/login")),
     ]
     
     colm1_container1 = ft.Container(
@@ -257,10 +315,9 @@ def add_account_view(page):
 
         height=600  
     )
-
-    
-    home.data_account.clear()
-    home.name_account = ""
+  
+    shared.data_account.clear()
+    shared.name_account = ""
     
     colm2_container2 = colm2_container2 = ft.Container(
         content=ft.Column(
@@ -273,7 +330,7 @@ def add_account_view(page):
                         padding=ft.padding.all(10),
                         bgcolor=theme_app["button_bg_color"],
                         color=theme_app["button_text_color"],
-                        overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+                        overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
                         text_style=ft.TextStyle(size=font_size["button"]),
                     ),
                     width=200,
@@ -287,7 +344,7 @@ def add_account_view(page):
                         padding=ft.padding.all(10),
                         bgcolor=theme_app["button_bg_color"],
                         color=theme_app["button_text_color"],
-                        overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+                        overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
                         text_style=ft.TextStyle(size=font_size["button"]),
                     ),
                     width=200,
@@ -301,7 +358,7 @@ def add_account_view(page):
                         padding=ft.padding.all(10),
                         bgcolor=theme_app["button_bg_color"],
                         color=theme_app["button_text_color"],
-                        overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+                        overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
                         text_style=ft.TextStyle(size=font_size["button"]),
                     ),
                     width=200,
@@ -315,7 +372,7 @@ def add_account_view(page):
                         padding=ft.padding.all(10),
                         bgcolor=theme_app["button_bg_color"],
                         color=theme_app["button_text_color"],
-                        overlay_color=ft.colors.with_opacity(0.1, ft.colors.WHITE),
+                        overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
                         text_style=ft.TextStyle(size=font_size["button"]),
                     ),
                     width=200,
@@ -339,8 +396,6 @@ def add_account_view(page):
         height=600  
     )
 
-
-    
     colm1 = ft.Column(controls=[colm1_container1], expand=2)
     colm2 = ft.Column(controls=[colm2_container1, colm2_container2], expand=12,scroll="hidden")
 
@@ -349,5 +404,3 @@ def add_account_view(page):
         bgcolor=theme_app["background_colors"][0],
         controls=[colm1, colm2]
     )
-
-
