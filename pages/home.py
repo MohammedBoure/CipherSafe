@@ -63,8 +63,6 @@ def home_view(page):
         on_change=on_text_change  
     )
 
-
-
     buttons = [
         create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _: None),
         create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),

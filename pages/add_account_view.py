@@ -123,11 +123,11 @@ def colm2_container1_colm(page):
         )
 
     elif shared.name_account:
-        account_name = shared.name_account  # حفظ القيمة في متغير محلي
+        account_name = shared.name_account
         print(account_name)
 
         def toggle_save_button(e):
-            save_button.disabled = not bool(e.control.value.strip())  # تمكين أو تعطيل الزر بناءً على الإدخال
+            save_button.disabled = not bool(e.control.value.strip())  
             save_button.update()  # تحديث الزر
 
         text_input = ft.TextField(
@@ -137,7 +137,7 @@ def colm2_container1_colm(page):
             max_lines=6,
             text_size=font_size["input"],
             border_radius=10,
-            on_change=toggle_save_button  # استدعاء الدالة عند التغيير
+            on_change=toggle_save_button
         )
 
         save_button = ft.ElevatedButton(
@@ -152,7 +152,7 @@ def colm2_container1_colm(page):
                 text_style=ft.TextStyle(size=font_size["button"])),
             width=200,
             height=50,
-            disabled=True  # يكون معطلاً في البداية
+            disabled=True
         )
 
         def add_account(name_account, data, page):
@@ -165,7 +165,7 @@ def colm2_container1_colm(page):
                     print(f"Error: Account '{name_account}' not found in tlist! Creating a new entry.")
                     shared.tlist[name_account] = [] 
 
-                if not data or all(line.strip() == "" for line in data):  # تجنب إضافة بيانات فارغة
+                if not data or all(line.strip() == "" for line in data):
                     print("Warning: Empty data provided, nothing to add.")
                     return 
 
@@ -174,8 +174,8 @@ def colm2_container1_colm(page):
 
                 show_banner()
                 text_input.value = ""
-                text_input.update()  # تحديث الإدخال
-                save_button.disabled = True  # تعطيل الزر بعد الإضافة
+                text_input.update()
+                save_button.disabled = True
                 page.update() 
 
             except Exception as ex:
