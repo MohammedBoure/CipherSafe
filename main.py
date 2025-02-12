@@ -10,7 +10,8 @@ from storage.config import theme
 def main(page: ft.Page):
     page.title = "CaferSafe"
     page.window.width = 500
-    page.window.height = 700
+    page.window.height = 900
+    page.window_top_padding = 30
     
     page.theme_mode = ft.ThemeMode.LIGHT if theme == "light" else ft.ThemeMode.DARK
 

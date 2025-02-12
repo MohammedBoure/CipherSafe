@@ -43,11 +43,17 @@ def settings_view(page: ft.Page):
 
         current_view.controls.extend([
             ft.Text("Settings Page", size=30),
+            ft.Row(
+                controls=[
+                    ft.ElevatedButton("Save Settings", on_click=save_settings),
+                    ft.ElevatedButton("Back to Home", on_click=go_home),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                spacing=10,
+            ),
             selected_theme,
             *[field for fields in color_fields.values() for field in (fields if isinstance(fields, list) else [fields])],
             *font_size_fields.values(),
-            ft.ElevatedButton("Save Settings", on_click=save_settings),
-            ft.ElevatedButton("Back to Home", on_click=go_home),
         ])
         page.update()
 
@@ -84,11 +90,17 @@ def settings_view(page: ft.Page):
         route="/settings",
         controls=[
             ft.Text("Settings Page", size=30),
+            ft.Row(
+                controls=[
+                    ft.ElevatedButton("Save Settings", on_click=save_settings),
+                    ft.ElevatedButton("Back to Home", on_click=go_home),
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                spacing=10,
+            ),
             selected_theme,
             *[field for fields in color_fields.values() for field in (fields if isinstance(fields, list) else [fields])],
             *font_size_fields.values(),
-            ft.ElevatedButton("Save Settings", on_click=save_settings),
-            ft.ElevatedButton("Back to Home", on_click=go_home),
         ],
         scroll="auto"
     )

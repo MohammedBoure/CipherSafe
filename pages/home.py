@@ -1,12 +1,10 @@
 import flet as ft
-from utils.BusinessLogic import DataPreparationTuple, get_best_match,convert_data_format,save_data
-from storage.config import themes,theme,font_size
+from utils.BusinessLogic import DataPreparationTuple, get_best_match, convert_data_format, save_data
+from storage.config import themes, theme, font_size
 import utils.shared as shared
-
 
 shared.tlist = DataPreparationTuple("storage/data/data")
 theme_app = themes[theme]
-
 
 def create_icon_button(icon, tooltip, click): 
     btn = ft.IconButton(
@@ -41,10 +39,10 @@ def home_view(page):
             query = ""
         list_data = get_best_match(shared.tlist, query)
         
-        colm2_container1.content.controls.clear()
-        colm2_container1.content.controls = [list_panels(list_data, page)]
+        colm1_container1.content.controls.clear()
+        colm1_container1.content.controls = [list_panels(list_data, page)]
         
-        colm2_container1.update()  
+        colm1_container1.update()  
 
     text_field = ft.TextField(
         label="البحث",
@@ -63,14 +61,13 @@ def home_view(page):
         on_change=on_text_change  
     )
     buttons = [
-        create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _:None),
+        create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _: None),
         create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),
         create_icon_button(ft.icons.SETTINGS, "الإعدادات", lambda _: page.go("/settings")),
         create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", lambda _: page.go("/login")),
     ]
-          
 
-    colm1_container1 = ft.Container(
+    colm2_container1 = ft.Container(
         content=ft.Row(
             controls=buttons,
             alignment=ft.MainAxisAlignment.CENTER,
@@ -80,7 +77,7 @@ def home_view(page):
         ),
         border=ft.border.all(2, theme_app["border_color"]),
         border_radius=15,
-        expand=4,
+        expand=2,
         padding=5,
         alignment=ft.alignment.center,
         bgcolor=theme_app["container_bg_colors"][1]
@@ -108,7 +105,7 @@ def home_view(page):
         ),
         border=ft.border.all(2, theme_app["border_color"]),
         border_radius=15,
-        expand=7,
+        expand=3,
         padding=5,
         alignment=ft.alignment.center,
         bgcolor=theme_app["container_bg_colors"][1]
@@ -178,16 +175,15 @@ def home_view(page):
         except Exception as ex:
             print(f"Exception: {ex}")
 
-     
-    def close_dlg_accoun(e,bol):
+    def close_dlg_accoun(e, bol):
         try:
-            print(shared.account_delete,"1111111111111")
+            print(shared.account_delete, "1111111111111")
             if not bol:
                 dlg_modal_account.open = False
                 e.control.page.update()
             else:
                 shared.tlist[shared.account_delete[0]].pop(shared.account_delete[1])
-                save_data("storage/data/data",convert_data_format(shared.tlist))  
+                save_data("storage/data/data", convert_data_format(shared.tlist))  
                 dlg_modal_account.open = False
                 
                 colm2_container1.content.controls.clear()
@@ -197,14 +193,15 @@ def home_view(page):
                 colm2_container1.update()  
         except Exception as ex:
             print(f"Exception : {ex}")           
+
     dlg_modal_account = ft.AlertDialog(
         modal=True,
-        title=ft.Text("التأكيد",rtl=True),
-        content=ft.Text("هل أنت متأكد من حدف هدا الحساب!",rtl=True),
+        title=ft.Text("التأكيد", rtl=True),
+        content=ft.Text("هل أنت متأكد من حدف هدا الحساب!", rtl=True),
         actions=[
             ft.TextButton(
                 "نعم",
-                on_click=lambda _:close_dlg_accoun(_,True),
+                on_click=lambda _: close_dlg_accoun(_, True),
                 style=ft.ButtonStyle(
                     bgcolor=theme_app["button_overlay_color"],
                     color=theme_app["button_text_color"],
@@ -215,7 +212,7 @@ def home_view(page):
             ),
             ft.TextButton(
                 "لا",
-                on_click=lambda _:close_dlg_accoun(_,False),
+                on_click=lambda _: close_dlg_accoun(_, False),
                 style=ft.ButtonStyle(
                     bgcolor=theme_app["button_overlay_color"],
                     color=theme_app["button_text_color"],
@@ -228,6 +225,7 @@ def home_view(page):
         actions_alignment=ft.MainAxisAlignment.END,
         on_dismiss=lambda e: print("Modal dialog dismissed!"),
     )
+
     def open_dlg_accoun(e, name, index):
         try:
             shared.account_delete = [name, index]
@@ -241,7 +239,6 @@ def home_view(page):
 
         except Exception as ex:
             print(f"Exception: {ex}")
-
 
     def on_click_edit_btn(name, index, page):
         try:
@@ -262,14 +259,13 @@ def home_view(page):
         except Exception as ex:
             print(f"Exception: {ex}")
 
-
-    def on_click_add_btn(name,page):
+    def on_click_add_btn(name, page):
         try:
             shared.name_account = name
             page.go("/add_account")
         except Exception as ex:
             print(f"Exception : {ex}")
-                    
+
     def Panel_card(name, index, page):
         controls_list = []
         i = 0
@@ -289,7 +285,7 @@ def home_view(page):
                     icon_color=theme_app["expansion_panel_icon"],
                     icon_size=20,
                     tooltip="تعديل",
-                    on_click=lambda _: open_dlg_accoun(_,name, index)
+                    on_click=lambda _: open_dlg_accoun(_, name, index)
                 )
                 
             ],
@@ -327,7 +323,7 @@ def home_view(page):
             height=i * 45 + 50,  
             bgcolor=theme_app["panel_card_bg"],
             border_radius=5,
-            padding=ft.padding.only(left=20,right=15),
+            padding=ft.padding.only(left=20, right=15),
             margin=5,
             content=ft.Column(controls=controls_list, spacing=0.1)
         )
@@ -351,12 +347,12 @@ def home_view(page):
                         ft.IconButton(
                             icon=ft.Icons.ADD,
                             icon_color=theme_app["expansion_panel_icon"],
-                            on_click=lambda _:on_click_add_btn(name,page)
+                            on_click=lambda _: on_click_add_btn(name, page)
                         ),
                         ft.IconButton(
                             icon=ft.Icons.DELETE,
                             icon_color=theme_app["expansion_panel_icon"],
-                            on_click=lambda _:open_dlg_accoun_name(_,name),
+                            on_click=lambda _: open_dlg_accoun_name(_, name),
                         )
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN 
@@ -385,7 +381,7 @@ def home_view(page):
             controls=control_list
         )
 
-    colm2_container1 = ft.Container(
+    colm1_container1 = ft.Container(
         content=ft.Column(
             controls=[list_panels(shared.tlist, page)],
             alignment=ft.MainAxisAlignment.CENTER,
@@ -395,29 +391,16 @@ def home_view(page):
         ),
         border=ft.border.all(2, theme_app["border_color"]),
         border_radius=15,
-        expand=True,
+        expand=10,
         bgcolor=theme_app["container_bg_colors"][0],
         padding=10
     )
 
-    colm1 = ft.Column(controls=[colm1_container1, colm1_container2], expand=4)
-    colm2 = ft.Column(controls=[colm2_container1], expand=6)
+    colm1 = ft.Column(controls=[colm1_container2, colm1_container1], expand=8)
+    colm2 = ft.Column(controls=[colm2_container1], expand=1)
 
-    """def threadingerue():
-        while True:
-            time.sleep(1)
-            try:
-                print(name_of_account_delete)
-            except:
-                pass
-            print(colm2_container1.content)
-            
-
-    threading.Thread(target=threadingerue, args=()).start()"""
-    
     return ft.View(
         route="/",
         bgcolor=theme_app["background_colors"][0],
         controls=[colm1, colm2]
     )
-

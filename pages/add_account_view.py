@@ -396,8 +396,8 @@ def add_account_view(page):
         height=600  
     )
 
-    colm1 = ft.Column(controls=[colm1_container1], expand=2)
-    colm2 = ft.Column(controls=[colm2_container1, colm2_container2], expand=12,scroll="hidden")
+    colm2 = ft.Column(controls=[colm1_container1], expand=2)
+    colm1 = ft.Column(controls=[colm2_container1, colm2_container2], expand=15,scroll="hidden")
 
     return ft.View(
         route="/add_account",
