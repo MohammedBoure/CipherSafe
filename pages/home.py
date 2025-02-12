@@ -52,7 +52,7 @@ def home_view(page):
         text_align=ft.TextAlign.CENTER,
         filled=True,
         hint_text="إسم الحساب",
-        width=400,
+        width=300,
         color=theme_app["text_color"],
         border_color=theme_app["input_border_color"],
         fill_color=theme_app["input_fill_color"],
@@ -108,7 +108,7 @@ def home_view(page):
         ),
         border=ft.border.all(2, theme_app["border_color"]),
         border_radius=15,
-        expand=4,
+        expand=5,
         padding=5,
         alignment=ft.alignment.center,
         bgcolor=theme_app["container_bg_colors"][1],
@@ -125,8 +125,8 @@ def home_view(page):
                     save_data("storage/data/data", convert_data_format(shared.tlist))
 
                 dlg_modal_accoun_name.open = False
-                colm2_container1.content.controls = [list_panels(shared.tlist, e.control.page)]
-                colm2_container1.update()
+                colm1_container1.content.controls = [list_panels(shared.tlist, e.control.page)]
+                colm1_container1.update()
 
             dlg_modal_accoun_name.update()
             e.control.page.update()
@@ -190,11 +190,11 @@ def home_view(page):
                 save_data("storage/data/data", convert_data_format(shared.tlist))  
                 dlg_modal_account.open = False
                 
-                colm2_container1.content.controls.clear()
-                colm2_container1.content.controls = [list_panels(shared.tlist, page)]
+                colm1_container1.content.controls.clear()
+                colm1_container1.content.controls = [list_panels(shared.tlist, page)]
                 
                 e.control.page.update()   
-                colm2_container1.update()  
+                colm1_container1.update()  
         except Exception as ex:
             print(f"Exception : {ex}")           
 
