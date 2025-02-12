@@ -45,9 +45,10 @@ def home_view(page):
         colm1_container1.update()  
 
     text_field = ft.TextField(
-        label="البحث",
+        label="🔍 البحث",
         text_size=font_size["input"],
-        border=ft.InputBorder.UNDERLINE,
+        border=ft.InputBorder.OUTLINE,
+        border_radius=8,
         text_align=ft.TextAlign.CENTER,
         filled=True,
         hint_text="إسم الحساب",
@@ -58,8 +59,12 @@ def home_view(page):
         hover_color=theme_app["input_hover_color"],
         cursor_color=theme_app["input_cursor_color"],
         selection_color=theme_app["input_selection_color"],
+        focused_border_color=theme_app["primary_color"],
         on_change=on_text_change  
     )
+
+
+
     buttons = [
         create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _: None),
         create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),
@@ -105,10 +110,11 @@ def home_view(page):
         ),
         border=ft.border.all(2, theme_app["border_color"]),
         border_radius=15,
-        expand=3,
+        expand=4,
         padding=5,
         alignment=ft.alignment.center,
-        bgcolor=theme_app["container_bg_colors"][1]
+        bgcolor=theme_app["container_bg_colors"][1],
+        margin=ft.margin.only(top=30)
     )
 
     def close_dlg_accoun_name(e, bol):

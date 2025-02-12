@@ -312,7 +312,7 @@ def add_account_view(page):
         border_radius=15,
         bgcolor=theme_app["container_bg_colors"][1],
         padding=10,
-
+        margin=ft.margin.only(top=30),
         height=600  
     )
   
