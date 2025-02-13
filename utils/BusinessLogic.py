@@ -21,6 +21,8 @@ def DataPreparationTuple(adress,status = False):
     }  
     """
     if status == False:
+        if os.path.exists(adress) == False:
+            open(adress, 'w', encoding='utf-8')
         with open(adress, 'r', encoding='utf-8') as file:
             data = file.read()
     else:
@@ -82,8 +84,6 @@ def convert_data_format(data):
     return "\n".join(result).strip()
 
 def save_data(namefile,data):
-    if os.path.exists(namefile) == False:
-        return ""
     with open(namefile,'w',encoding='utf-8') as file:
         file.write(data)
         

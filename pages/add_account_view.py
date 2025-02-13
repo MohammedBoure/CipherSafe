@@ -2,7 +2,9 @@ import flet as ft
 import utils.shared as shared
 from storage.config import themes, theme, font_size ,write_json,read_json
 from utils.BusinessLogic import convert_data_format, save_data,convert_path,read_data,DataPreparationTuple
+from utils.Encryption import encrypt,decrypt,simple_hash_256
 import threading
+import os
 
 theme_app = themes[theme]
 
@@ -326,6 +328,8 @@ def add_account_view(page):
     shared.data_account.clear()
     shared.name_account = ""
     
+    
+#for normal file
     def pick_files_result(e: ft.FilePickerResultEvent):
         selected_files = (
             ", ".join(map(lambda f: f.path, e.files)) if e.files else ""
@@ -345,19 +349,73 @@ def add_account_view(page):
     def get_directory_result(e: ft.FilePickerResultEvent,status_file:str):
         directory_path = e.path if e.path else ""
         
+        
         if directory_path and status_file == "txt": 
-            save_data(convert_path(directory_path)+"/accounts.txt", convert_data_format(shared.tlist))
-            
+            save_data(convert_path(directory_path)+"/accounts.txt",convert_data_format(shared.tlist))
+            show_banner()
+            page.update()
         elif directory_path and status_file == "json":
             write_json(shared.tlist,convert_path(directory_path)+"/accounts.json")
-        show_banner()
+            show_banner()
+            page.update()
             
-
     pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
     get_directory_dialog_txt = ft.FilePicker(on_result=lambda e:get_directory_result(e,"txt"))
     get_directory_dialog_json = ft.FilePicker(on_result=lambda e:get_directory_result(e,"json"))
     page.overlay.extend([pick_files_dialog, get_directory_dialog_txt,get_directory_dialog_json])
+    
+#end-----------------------------------   
+    
+#for encrypted file
+    def pick_files_encrypted_result(e: ft.FilePickerResultEvent):
+        selected_files = (
+            ", ".join(map(lambda f: f.path, e.files)) if e.files else ""
+        )
+        if selected_files:
+            selected_files = convert_path(selected_files)
+            
+            if not os.path.exists("storage/key"):
+                with open("storage/key", 'wb') as key_file:
+                    key_file.write(simple_hash_256("password"))
+            
+
+            with open("storage/key", 'rb') as file:
+                key = file.read()
+                if not key:
+                    key = simple_hash_256("password")
+                    
+            shared.tlist = DataPreparationTuple(decrypt(read_data(selected_files),key),True)
+                
+            save_data("storage/data/data", convert_data_format(shared.tlist))
+            show_banner()
+            page.update()
+   
+    def get_directory_encrypted_result(e: ft.FilePickerResultEvent):
+        directory_path = e.path if e.path else ""
+
+        if not os.path.exists("storage/key"):
+            with open("storage/key", 'wb') as key_file:
+                key_file.write(simple_hash_256("password"))
+        
+
+        with open("storage/key", 'rb') as file:
+            key = file.read()
+            if not key:
+                key = simple_hash_256("password")
+
+        if directory_path:
+            save_data(convert_path(directory_path) + "/encrypted-file", encrypt(convert_data_format(shared.tlist), key))
+            
+            show_banner()
+            page.update()
+        
+    pick_encrypted_files_dialog = ft.FilePicker(on_result=lambda e:pick_files_encrypted_result(e))
+    get_encrypted_directory_dialog = ft.FilePicker(on_result=lambda e:get_directory_encrypted_result(e))
+    page.overlay.extend([pick_encrypted_files_dialog, get_encrypted_directory_dialog])
     page.update()
+#end-----------------------------------
+    
+    
     
     colm2_container2 = ft.Container(
         content=ft.Column(
@@ -406,7 +464,7 @@ def add_account_view(page):
                 ),
                 ft.ElevatedButton(
                     text="حفظ ملف حسابات مشفر",
-                    on_click=lambda e: print("Save with Encrypt clicked"),
+                    on_click=lambda e: get_encrypted_directory_dialog.get_directory_path(),
                     style=ft.ButtonStyle(
                         shape=ft.RoundedRectangleBorder(radius=10),
                         padding=ft.padding.all(10),
@@ -420,7 +478,7 @@ def add_account_view(page):
                 ),
                 ft.ElevatedButton(
                     text="إستيراد ملف حسابات مشفر",
-                    on_click=lambda e: print("Import with Encrypt clicked"),
+                    on_click=lambda e: pick_encrypted_files_dialog.pick_files(),
                     style=ft.ButtonStyle(
                         shape=ft.RoundedRectangleBorder(radius=10),
                         padding=ft.padding.all(10),

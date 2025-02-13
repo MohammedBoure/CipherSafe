@@ -143,10 +143,10 @@ def home_view(page):
                 "نعم",
                 on_click=lambda _: close_dlg_accoun_name(_, True),
                 style=ft.ButtonStyle(
-                    bgcolor=theme_app["button_overlay_color"],
+                    bgcolor=theme_app["button_bg_color"],
                     color=theme_app["button_text_color"],
                     shape=ft.RoundedRectangleBorder(radius=10),
-                    overlay_color=theme_app["button_bg_color"],
+                    overlay_color=theme_app["button_overlay_color"],
                     padding=ft.Padding(12, 8, 12, 8),
                 )
             ),
@@ -154,10 +154,10 @@ def home_view(page):
                 "لا",
                 on_click=lambda _: close_dlg_accoun_name(_, False),
                 style=ft.ButtonStyle(
-                    bgcolor=theme_app["button_overlay_color"],
+                    bgcolor=theme_app["button_bg_color"],
                     color=theme_app["button_text_color"],
                     shape=ft.RoundedRectangleBorder(radius=10),
-                    overlay_color=theme_app["button_bg_color"],
+                    overlay_color=theme_app["button_overlay_color"],
                     padding=ft.Padding(12, 8, 12, 8),
                 )
             ),
@@ -208,10 +208,10 @@ def home_view(page):
                 "نعم",
                 on_click=lambda _: close_dlg_accoun(_, True),
                 style=ft.ButtonStyle(
-                    bgcolor=theme_app["button_overlay_color"],
+                    bgcolor=theme_app["button_bg_color"],
                     color=theme_app["button_text_color"],
                     shape=ft.RoundedRectangleBorder(radius=10),
-                    overlay_color=theme_app["button_bg_color"],
+                    overlay_color=theme_app["button_overlay_color"],
                     padding=ft.Padding(12, 8, 12, 8),
                 )
             ),
@@ -219,10 +219,10 @@ def home_view(page):
                 "لا",
                 on_click=lambda _: close_dlg_accoun(_, False),
                 style=ft.ButtonStyle(
-                    bgcolor=theme_app["button_overlay_color"],
+                    bgcolor=theme_app["button_bg_color"],
                     color=theme_app["button_text_color"],
                     shape=ft.RoundedRectangleBorder(radius=10),
-                    overlay_color=theme_app["button_bg_color"],
+                    overlay_color=theme_app["button_overlay_color"],
                     padding=ft.Padding(12, 8, 12, 8),
                 )
             ),

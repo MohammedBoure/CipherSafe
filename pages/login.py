@@ -1,5 +1,6 @@
 import flet as ft
 from pages.home import theme_app
+from utils.Encryption import simple_hash_256
 
 def login_view(page):
     top_image = ft.Image(src="assets/1.gif",
@@ -40,6 +41,10 @@ def login_view(page):
     )
 
     def on_submit(e):
+        password = key_field.value
+        if password:
+            with open("storage/key", "wb") as file:
+                file.write(simple_hash_256(password))
         page.go("/")
 
     submit = ft.ElevatedButton(
