@@ -1,11 +1,31 @@
 import flet as ft
 from storage.config import write_json, read_json
+import threading
 
 themes = read_json("storage/themes.json")
 font_sizes = read_json("storage/font_sizes.json")
 
 def settings_view(page: ft.Page):
     theme_options = list(themes.keys())
+    
+    def show_banner():
+        banner.open = True
+        page.update()
+        threading.Timer(3, close_banner).start()
+    def close_banner():
+        banner.open = False
+        page.update()
+        
+    banner = ft.Banner(
+            bgcolor=ft.Colors.GREEN_100, 
+            leading=ft.Icon(ft.Icons.SAVE, color=ft.Colors.GREEN, size=40),
+            content=ft.Text("تمت حفظ التعديلات بنجاح!\nأعد تشغيل التطبيق لتحديث التعديلات", color=ft.Colors.BLACK),
+            actions=[ft.TextButton("", disabled=True)], 
+            force_actions_below=True,
+            min_action_bar_height=10,
+    )
+    page.overlay.clear()
+    page.overlay.append(banner)
 
     selected_theme = ft.Dropdown(
         label="Theme",
@@ -64,7 +84,10 @@ def settings_view(page: ft.Page):
             if isinstance(field, list):
                 themes[selected_theme_value][key] = [f.value for f in field]
             else:
-                themes[selected_theme_value][key] = field.value
+                try:
+                    themes[selected_theme_value][key] = int(field.value)
+                except:
+                    themes[selected_theme_value][key] = field.value
 
         for key, field in font_size_fields.items():
             font_sizes[key] = int(field.value)
@@ -75,8 +98,7 @@ def settings_view(page: ft.Page):
         write_json(themes, "storage/themes.json")
         write_json(font_sizes, "storage/font_sizes.json")
 
-        page.snack_bar = ft.SnackBar(ft.Text("Settings Saved!"))
-        page.snack_bar.open = True
+        show_banner()
         page.update()
 
     def go_home(e):

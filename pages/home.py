@@ -6,6 +6,7 @@ import utils.shared as shared
 shared.tlist = DataPreparationTuple("storage/data/data")
 theme_app = themes[theme]
 
+
 def create_icon_button(icon, tooltip, click): 
     btn = ft.IconButton(
         icon=icon,
@@ -15,10 +16,11 @@ def create_icon_button(icon, tooltip, click):
         height=70,
         on_click=click,
         style=ft.ButtonStyle(
-            shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"]),
-            bgcolor=theme_app["button_bg_color"],
+            shape=ft.RoundedRectangleBorder(radius=theme_app["icon_button_border_radius"]),
+            bgcolor=theme_app["icon_button_bg_color"],
             padding=0,
-            overlay_color=theme_app["button_overlay_color"],
+            overlay_color=theme_app["icon_button_overlay_color"],
+            icon_color=theme_app["icon_button_icon_color"],
         ),
     )
 
@@ -28,9 +30,8 @@ def create_icon_button(icon, tooltip, click):
         animate_scale=ft.Animation(200, ft.AnimationCurve.EASE_IN_OUT),
         on_hover=lambda e: (setattr(e.control, "scale", 1.2 if e.data == "true" else 1), e.control.update()),
     )
-
     return container
-
+    
 def home_view(page):
     def on_text_change(e):
         try:
@@ -59,15 +60,15 @@ def home_view(page):
         hover_color=theme_app["input_hover_color"],
         cursor_color=theme_app["input_cursor_color"],
         selection_color=theme_app["input_selection_color"],
-        focused_border_color=theme_app["primary_color"],
+        focused_border_color=theme_app["input_focused_border_color"],
         on_change=on_text_change  
     )
 
     buttons = [
-        create_icon_button(ft.icons.HOME, "الصفحة الرئيسية", lambda _: None),
-        create_icon_button(ft.icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: page.go("/add_account")),
-        create_icon_button(ft.icons.SETTINGS, "الإعدادات", lambda _: page.go("/settings")),
-        create_icon_button(ft.icons.LOGOUT, "تسجيل الخروج", lambda _: page.go("/login")),
+        create_icon_button(ft.Icons.HOME, "الصفحة الرئيسية",lambda _:None),
+        create_icon_button(ft.Icons.ADD_CIRCLE, "صفحة الإنشاء",lambda _:page.go("/add_account")),
+        create_icon_button(ft.Icons.SETTINGS, "الإعدادات",lambda _:page.go("/settings")),
+        create_icon_button(ft.Icons.LOGOUT, "تسجيل الخروج",lambda _:page.go("/login")),
     ]
 
     colm2_container1 = ft.Container(
@@ -79,7 +80,7 @@ def home_view(page):
             scroll="hidden"
         ),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         expand=2,
         padding=5,
         alignment=ft.alignment.center,
@@ -107,7 +108,7 @@ def home_view(page):
             alignment=ft.alignment.center,
         ),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         expand=5,
         padding=5,
         alignment=ft.alignment.center,
@@ -326,6 +327,7 @@ def home_view(page):
             width=max_width + 100, 
             height=i * 45 + 50,  
             bgcolor=theme_app["panel_card_bg"],
+            border=ft.border.all(theme_app["panel_card_border_thickness"], theme_app["panel_card_border_color"]),
             border_radius=5,
             padding=ft.padding.only(left=20, right=15),
             margin=5,
@@ -363,7 +365,8 @@ def home_view(page):
                 ),
                 alignment=ft.alignment.center,
                 padding=10,
-                bgcolor=theme_app["expansion_panel_header_bg"]
+                bgcolor=theme_app["expansion_panel_header_bg"],
+                border=ft.Border(bottom=ft.BorderSide(theme_app["expansion_panel_header_border_thickness"], theme_app["expansion_panel_header_border"]))
             ),
             bgcolor=theme_app["container_bg_colors"][1],
             content=ft.Row(
@@ -394,7 +397,7 @@ def home_view(page):
             scroll="auto"
         ),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         expand=10,
         bgcolor=theme_app["container_bg_colors"][0],
         padding=10

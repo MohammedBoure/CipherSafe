@@ -1,12 +1,10 @@
 import flet as ft
 import utils.shared as shared
-from storage.config import themes,theme,font_size
-from utils.BusinessLogic import convert_data_format,save_data
+from storage.config import themes, theme, font_size ,write_json,read_json
+from utils.BusinessLogic import convert_data_format, save_data,convert_path,read_data,DataPreparationTuple
 import threading
 
-
 theme_app = themes[theme]
-
 
 def colm2_container1_colm(page):
     def show_banner():
@@ -26,26 +24,17 @@ def colm2_container1_colm(page):
     page.overlay.clear()
     page.overlay.append(banner)
     
-    ''' def threadingerue():
-        while True:
-            time.sleep(1)
-            print(shared.data_account)
-            print(shared.name_account)
-            
-    threading.Thread(target=threadingerue, args=()).start()'''
-    
     if shared.data_account:
         data_account = shared.data_account[:]
-        print(data_account)
 
         if not data_account or len(data_account) < 2:
             data_account = ["", []]
-        print(data_account)
 
         text_input_name = ft.TextField(
             label="الحساب",
             value=data_account[0], 
             text_size=font_size["input"],
+            border_color=theme_app["input_border_color"],
             border_radius=10,
         )
         text_input_data = ft.TextField(
@@ -55,6 +44,7 @@ def colm2_container1_colm(page):
             max_lines=6,
             value="\n".join(map(str, data_account[1])) if data_account[1] else "",
             text_size=font_size["input"],
+            border_color=theme_app["input_border_color"],
             border_radius=10,
         )
 
@@ -128,7 +118,7 @@ def colm2_container1_colm(page):
 
         def toggle_save_button(e):
             save_button.disabled = not bool(e.control.value.strip())  
-            save_button.update()  # تحديث الزر
+            save_button.update()
 
         text_input = ft.TextField(
             label="معلومات",
@@ -136,6 +126,7 @@ def colm2_container1_colm(page):
             min_lines=2,
             max_lines=6,
             text_size=font_size["input"],
+            border_color=theme_app["input_border_color"],
             border_radius=10,
             on_change=toggle_save_button
         )
@@ -209,24 +200,21 @@ def colm2_container1_colm(page):
     else:
         text_input = ft.TextField(
                         label="معلومات",
-                        multiline=True,
-                        min_lines=2,
-                        max_lines=6,
                         text_size=font_size["input"],
+                        border_color=theme_app["input_border_color"],
                         border_radius=10,
                     )
-        def add_name_of_account(name,page):
+        def add_name_of_account(name, page):
             shared.tlist.update({name:[]})
-            save_data("storage/data/data",convert_data_format(shared.tlist))
+            save_data("storage/data/data", convert_data_format(shared.tlist))
             show_banner()
             text_input.value = ""
             page.update()
         
-        
         return ft.Column(
             controls=[
                 ft.Container(
-                    content=ft.Text(f"إضافة حساب {shared.name_account}", size=font_size["title"], weight=ft.FontWeight.BOLD,rtl=True),
+                    content=ft.Text(f"إضافة حساب {shared.name_account}", size=font_size["title"], weight=ft.FontWeight.BOLD, rtl=True),
                     alignment=ft.alignment.center,
                     padding=ft.padding.symmetric(vertical=15),
                 ),
@@ -237,7 +225,7 @@ def colm2_container1_colm(page):
                 ft.Container(
                     content=ft.ElevatedButton(
                         text="حفظ المعلومات",
-                        on_click=lambda e: add_name_of_account(text_input.value,page),
+                        on_click=lambda e: add_name_of_account(text_input.value, page),
                         style=ft.ButtonStyle(
                             shape=ft.RoundedRectangleBorder(radius=10),
                             padding=ft.padding.all(10),
@@ -267,10 +255,11 @@ def create_icon_button(icon, tooltip, click):
         height=70,
         on_click=click,
         style=ft.ButtonStyle(
-            shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"]),
-            bgcolor=theme_app["button_bg_color"],
+            shape=ft.RoundedRectangleBorder(radius=theme_app["icon_button_border_radius"]),
+            bgcolor=theme_app["icon_button_bg_color"],
             padding=0,
-            overlay_color=theme_app["button_overlay_color"],
+            overlay_color=theme_app["icon_button_overlay_color"],
+            icon_color=theme_app["icon_button_icon_color"],
         ),
     )
 
@@ -283,12 +272,30 @@ def create_icon_button(icon, tooltip, click):
 
     return container
 
-def add_account_view(page):    
+def add_account_view(page):  
+    def show_banner():
+        banner.open = True
+        page.update()
+        threading.Timer(1.5, close_banner).start()
+    def close_banner():
+        banner.open = False
+        page.update()
+    banner = ft.Banner(
+            bgcolor=ft.Colors.GREEN_100, 
+            leading=ft.Icon(ft.Icons.CHECK_CIRCLE, color=ft.Colors.GREEN, size=40),
+            content=ft.Text("تمت العملية بنجاح!", color=ft.Colors.BLACK),
+            actions=[ft.TextButton("", disabled=True)], 
+            force_actions_below=True,
+    )
+    page.overlay.clear()
+    if banner not in page.overlay:
+        page.overlay.append(banner)
+    
     buttons = [
-        create_icon_button(ft.Icons.HOME, "الصفحة الرئيسية",lambda _:page.go("/")),
-        create_icon_button(ft.Icons.ADD_CIRCLE, "صفحة الإنشاء",lambda _:None),
-        create_icon_button(ft.Icons.SETTINGS, "الإعدادات",lambda _:page.go("/settings")),
-        create_icon_button(ft.Icons.LOGOUT, "تسجيل الخروج",lambda _:page.go("/login")),
+        create_icon_button(ft.Icons.HOME, "الصفحة الرئيسية", lambda _: page.go("/")),
+        create_icon_button(ft.Icons.ADD_CIRCLE, "صفحة الإنشاء", lambda _: None),
+        create_icon_button(ft.Icons.SETTINGS, "الإعدادات", lambda _: page.go("/settings")),
+        create_icon_button(ft.Icons.LOGOUT, "تسجيل الخروج", lambda _: page.go("/login")),
     ]
     
     colm1_container1 = ft.Container(
@@ -300,7 +307,7 @@ def add_account_view(page):
             scroll="hidden"
         ),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         padding=5,
         alignment=ft.alignment.center,
         bgcolor=theme_app["container_bg_colors"][1]
@@ -309,7 +316,7 @@ def add_account_view(page):
     colm2_container1 = ft.Container(
         content=colm2_container1_colm(page),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         bgcolor=theme_app["container_bg_colors"][1],
         padding=10,
         margin=ft.margin.only(top=30),
@@ -319,12 +326,59 @@ def add_account_view(page):
     shared.data_account.clear()
     shared.name_account = ""
     
-    colm2_container2 = colm2_container2 = ft.Container(
+    def pick_files_result(e: ft.FilePickerResultEvent):
+        selected_files = (
+            ", ".join(map(lambda f: f.path, e.files)) if e.files else ""
+        )
+        if selected_files:
+            selected_files = convert_path(selected_files)
+            tr = selected_files.split(".")
+            if "json" in tr:
+                shared.tlist = read_json(selected_files)
+            elif "txt" in tr:
+                shared.tlist = DataPreparationTuple(read_data(selected_files),True)
+                
+            save_data("storage/data/data", convert_data_format(shared.tlist))
+            show_banner()
+            page.update()
+   
+    def get_directory_result(e: ft.FilePickerResultEvent,status_file:str):
+        directory_path = e.path if e.path else ""
+        
+        if directory_path and status_file == "txt": 
+            save_data(convert_path(directory_path)+"/accounts.txt", convert_data_format(shared.tlist))
+            
+        elif directory_path and status_file == "json":
+            write_json(shared.tlist,convert_path(directory_path)+"/accounts.json")
+        show_banner()
+            
+
+    pick_files_dialog = ft.FilePicker(on_result=pick_files_result)
+    get_directory_dialog_txt = ft.FilePicker(on_result=lambda e:get_directory_result(e,"txt"))
+    get_directory_dialog_json = ft.FilePicker(on_result=lambda e:get_directory_result(e,"json"))
+    page.overlay.extend([pick_files_dialog, get_directory_dialog_txt,get_directory_dialog_json])
+    page.update()
+    
+    colm2_container2 = ft.Container(
         content=ft.Column(
             controls=[
                 ft.ElevatedButton(
-                    text="حفظ الحسابات كملف",
-                    on_click=lambda e: print("Save clicked"),
+                    text="حفظ الحسابات كملف نصي",
+                    on_click=lambda e: get_directory_dialog_txt.get_directory_path(),
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=10),
+                        padding=ft.padding.all(10),
+                        bgcolor=theme_app["button_bg_color"],
+                        color=theme_app["button_text_color"],
+                        overlay_color=ft.Colors.with_opacity(0.1, ft.Colors.WHITE),
+                        text_style=ft.TextStyle(size=font_size["button"]),
+                    ),
+                    width=200,
+                    height=50
+                ),
+                ft.ElevatedButton(
+                    text="(josn)حفظ الحسابات كملف",
+                    on_click=lambda e: get_directory_dialog_json.get_directory_path(),
                     style=ft.ButtonStyle(
                         shape=ft.RoundedRectangleBorder(radius=10),
                         padding=ft.padding.all(10),
@@ -338,7 +392,7 @@ def add_account_view(page):
                 ),
                 ft.ElevatedButton(
                     text="إستيراد ملف حسابات",
-                    on_click=lambda e: print("Import clicked"),
+                    on_click=lambda e: pick_files_dialog.pick_files(),
                     style=ft.ButtonStyle(
                         shape=ft.RoundedRectangleBorder(radius=10),
                         padding=ft.padding.all(10),
@@ -384,20 +438,16 @@ def add_account_view(page):
             spacing=10 
         ),
         border=ft.border.all(2, theme_app["border_color"]),
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         padding=10,  
         bgcolor=theme_app["container_bg_colors"][1],
         alignment=ft.alignment.center,
-
-        # ✅ ضبط العرض ليكون بكامل الشاشة
         width=float("inf"),  
-
-        # ✅ ضبط الارتفاع ليكون 600 بكسل
         height=600  
     )
 
     colm2 = ft.Column(controls=[colm1_container1], expand=2)
-    colm1 = ft.Column(controls=[colm2_container1, colm2_container2], expand=15,scroll="hidden")
+    colm1 = ft.Column(controls=[colm2_container1, colm2_container2], expand=15, scroll="hidden")
 
     return ft.View(
         route="/add_account",

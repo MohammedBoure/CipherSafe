@@ -1,4 +1,6 @@
-def DataPreparationTuple(adress):
+import os
+
+def DataPreparationTuple(adress,status = False):
     """
     Parses a file containing account credentials grouped under platform names 
     and returns a structured dictionary.
@@ -18,10 +20,11 @@ def DataPreparationTuple(adress):
         "riot": [["gmail3@gmail.com", "password3"]]
     }  
     """
-
-    with open(adress, 'r', encoding='utf-8') as file:
-        data = file.read()
-
+    if status == False:
+        with open(adress, 'r', encoding='utf-8') as file:
+            data = file.read()
+    else:
+        data = adress
     result = {}
     sections = data.strip().split(":")  
     
@@ -79,12 +82,27 @@ def convert_data_format(data):
     return "\n".join(result).strip()
 
 def save_data(namefile,data):
-    with open(namefile,'w') as file:
+    if os.path.exists(namefile) == False:
+        return ""
+    with open(namefile,'w',encoding='utf-8') as file:
         file.write(data)
+        
+def read_data(namefile):
+    if os.path.exists(namefile) == False:
+        return ""
+    
+    with open(namefile,'r',encoding='utf-8') as file:
+        data = file.read()
+    return data
 
+def convert_path(path: str) -> str:
+    
+    parts = path.split("\\")
+    if len(parts) > 1:
+        parts[0] = parts[0].replace("\\", "/")  
+        return "/".join(parts)  
+    return path
 
 
 if __name__ == "__main__":
-    a = {'gog': [['hjesxsjd@gmail.com', 'zDJHpFFpAw', 'd', 'i', 'y', 'k', 'l'], ['0deusfzm@gmail.com', 'qdbI6LnF8p', 'o', 'j', 'g', 's', 'n'], ['ye0ak369@yahoo.com', 'fVlfVFLjgU', 'v', 'p', 'q', 'c', 'p']], 'google': []}
-    
-    print(convert_data_format(a))
+    print(DataPreparationTuple(read_data("C:/Users/AES/Desktop/accounts.txt"),True))
