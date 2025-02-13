@@ -12,7 +12,7 @@ def encrypt(plaintext, key, iv=iv):
     padder = padding.PKCS7(algorithms.AES.block_size).padder()
     padded_data = padder.update(plaintext.encode()) + padder.finalize()
     ciphertext = encryptor.update(padded_data) + encryptor.finalize()
-    return base64.b64encode(ciphertext).decode()  # تحويل إلى base64
+    return base64.b64encode(ciphertext).decode()
 
 def decrypt(ciphertext, key, iv=iv):
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())

@@ -7,7 +7,7 @@ def login_view(page):
                          width=200, height=200)
     
     key_field = ft.TextField(
-        hint_text="Enter your password",
+        hint_text="Enter your code",
         color=theme_app["text_color"],
         password=True,
         text_align=ft.TextAlign.CENTER,
@@ -53,25 +53,27 @@ def login_view(page):
         width=280,
         on_click=lambda e: on_submit(e),
         bgcolor=theme_app["button_bg_color"],
-        color=theme_app["text_color"],
+        color=theme_app["button_text_color"],
         elevation=5,
         style=ft.ButtonStyle(
             shape=ft.RoundedRectangleBorder(radius=theme_app["button_border_radius"])
         )
     )
+    
+    text = ft.Text("هدا الكود هو المسؤول عن عمليات التشفير\nيفضل وضعه بعناية",size=12,color="red",rtl=True)
 
     login_container = ft.Container(
         content=ft.Column(
-            controls=[top_image, key_field_row, submit],
+            controls=[top_image, key_field_row, submit,text],
             alignment="center",
             horizontal_alignment="center",
             spacing=20
         ),
         width=320,
-        height=450,
+        height=500,
         padding=20,
         bgcolor=theme_app["container_bg_colors"][0],
-        border_radius=15,
+        border_radius=theme_app["container_border_radius"],
         alignment=ft.alignment.center,
         border=ft.border.all(2, theme_app["border_color"])
     )

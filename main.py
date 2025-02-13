@@ -4,15 +4,24 @@ from pages.add_account_view import  add_account_view
 from pages.settings import  settings_view
 from pages.login import login_view
 from storage.config import theme
+import os 
 
 
+def main_senario(page):
+    if os.path.exists("storage/key"):
+        with open("storage/key",'rb') as key_file:
+            key = key_file.read()
+        if key:
+            page.go("/")
+        else:
+            page.go("/login")
 
 def main(page: ft.Page):
-    page.title = "CaferSafe"
+    page.title = "CipherSafe"
     page.window.width = 500
-    page.window.height = 900
-    page.window.top = 10
-    page.window.left = 1100
+    page.window.height = 730
+    page.window.top = 3
+    page.window.left = 850
     
     page.theme_mode = ft.ThemeMode.LIGHT if theme == "light" else ft.ThemeMode.DARK
 
@@ -30,7 +39,7 @@ def main(page: ft.Page):
         page.update()
 
     page.on_route_change = route_change
-    page.go("/login")
-
+    
+    main_senario(page)
 
 ft.app(target=main,web_renderer="html")
