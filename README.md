@@ -27,7 +27,7 @@ pip install flet cryptography pillow pystray
 ```
 
 ## 📥 Installation & Usage
-1. Download the appropriate version for your system from [Releases](https://github.com/username/repository/releases).
+1. Download the appropriate version for your system from [Releases](https://github.com/MohammedBoure/CipherSafe/tags).
 2. Extract the file if it is compressed.
 3. Run the application and enjoy! 🚀
 
@@ -68,7 +68,7 @@ pip install flet cryptography pillow pystray
 ```
 
 ## 📥 التثبيت والتشغيل
-1. قم بتحميل النسخة المناسبة لنظامك من [الإصدارات](https://github.com/username/repository/releases).
+1. قم بتحميل النسخة المناسبة لنظامك من [الإصدارات](https://github.com/MohammedBoure/CipherSafe/tags).
 2. فك الضغط عن الملف إذا كان مضغوطًا.
 3. شغّل البرنامج واستمتع! 🚀
 
